@@ -34,7 +34,7 @@ def print_display():
     print("-" * 75)
     print("Guesses Made: " + str(guesses_array))
     print("-" * 75)
-    print("Confirmed letters so far: " + str(confirmed_letters))
+    print("Confirmed letters: " + str(confirmed_letters))
     print("-" * 75)
 
 
@@ -76,10 +76,12 @@ if __name__ == "__main__":
             color_input = input(
                 "Enter the number for each color returned (1 = Black, 2 = Yellow, 3 = Green):  "
             )
+        compare_string(words_array, guess, color_input)
         if color_input == "33333":
+            clear()
+            print_display()
             print("Congratulations! You discovered the correct word.")
             break
-        compare_string(words_array, guess, color_input)
-    if guesses_remaining == 0 and color_input != "33333":
+    else:
         clear()
         print("Game over. Try again tomorrow!")
