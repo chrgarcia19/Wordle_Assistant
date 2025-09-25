@@ -1,19 +1,13 @@
 from enum import Enum
-from os import system, name
+
+import displays
+import system_functions
 
 
 class Colors(Enum):
     BLACK = 1
     YELLOW = 2
     GREEN = 3
-
-
-def clear():
-    if name == "nt":  # windows
-        _ = system("cls")
-    else:  # mac and linux
-        _ = system("clear")
-
 
 # open wordlewords.txt file
 words_file = open("wordlewords.txt", "r")
@@ -27,16 +21,6 @@ guesses_remaining = 6
 guesses_array = []
 color_array = []
 confirmed_letters = [""] * 5
-
-
-def print_display():
-    print("Guesses Remaining: " + str(guesses_remaining))
-    print("-" * 75)
-    print("Guesses Made: " + str(guesses_array))
-    print("-" * 75)
-    print("Confirmed letters: " + str(confirmed_letters))
-    print("-" * 75)
-
 
 def compare_string(words_array: [], guess: str, colors: []):
     for i in range(len(guess)):
@@ -56,32 +40,36 @@ def compare_string(words_array: [], guess: str, colors: []):
 
 
 if __name__ == "__main__":
-    while guesses_remaining != 0:
-        clear()
-        if guesses_remaining <= 5:
-            print(words_array)
-            print("-" * 75)
-        print_display()
-        guess = input("Guess a word: ").lower()
-        while len(guess) != 5:
-            print("The word must be 5 characters!")
+    selection = displays.main_menu()
+    if selection == "1": # Start the Wordle Assistant
+        while guesses_remaining != 0:
+            system_functions.clear()
+            if guesses_remaining <= 5:
+                print(words_array)
+                print("-" * 75)
+            displays.assistant_display(guesses_remaining, guesses_array, confirmed_letters)
             guess = input("Guess a word: ").lower()
-        guesses_array.append(guess)
-        guesses_remaining -= 1
-        color_input = input(
-            "Enter the number for each color returned (1 = Black, 2 = Yellow, 3 = Green):  "
-        )
-        while len(guess) != 5:
-            print("The word must be 5 characters!")
+            while len(guess) != 5:
+                print("The word must be 5 characters!")
+                guess = input("Guess a word: ").lower()
+            guesses_array.append(guess)
+            guesses_remaining -= 1
             color_input = input(
                 "Enter the number for each color returned (1 = Black, 2 = Yellow, 3 = Green):  "
             )
-        compare_string(words_array, guess, color_input)
-        if color_input == "33333":
-            clear()
-            print_display()
-            print("Congratulations! You discovered the correct word.")
-            break
-    else:
-        clear()
-        print("Game over. Try again tomorrow!")
+            while len(guess) != 5:
+                print("The word must be 5 characters!")
+                color_input = input(
+                    "Enter the number for each color returned (1 = Black, 2 = Yellow, 3 = Green):  "
+                )
+            compare_string(words_array, guess, color_input)
+            if color_input == "33333":
+                system_functions.clear()
+                displays.assistant_display(guesses_remaining, guesses_array, confirmed_letters)
+                print("Congratulations! You discovered the correct word.")
+                break
+        else:
+            system_functions.clear()
+            print("Game over. Try again tomorrow!")
+    elif selection == "3":
+        system_functions.exit() # Exit the program
