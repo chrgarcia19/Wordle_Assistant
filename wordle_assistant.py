@@ -1,13 +1,13 @@
 from enum import Enum
+from time import sleep
 
 import displays
-import system_functions
-
+import program_functions
 
 class Colors(Enum):
-    BLACK = 1
-    YELLOW = 2
-    GREEN = 3
+    BLACK = "B"
+    YELLOW = "Y"
+    GREEN = "G"
 
 # open wordlewords.txt file
 words_file = open("wordlewords.txt", "r")
@@ -17,6 +17,11 @@ for word in sorted(words_file):
     words_array.append(word.replace("\n", ""))
 words_file.close()
 
+guesses_remaining = 6
+words_guessed = []
+confirmed_letter = "?????"
+
+'''
 guesses_remaining = 6
 guesses_array = []
 color_array = []
@@ -37,11 +42,47 @@ def compare_string(words_array: [], guess: str, colors: []):
             for word in words_array[:]:
                 if word.__contains__(guess[i]) and guess[i] == word[i]:
                     words_array.remove(word)
+'''
+
+def compare_words(words_array, guess: str, color: str):
+    for i in range(len(guess)):
+        # Check if the color is black
+        if color[i] == Colors.BLACK.value:
+            for word in words_array[:]:
+                if word.__contains__(guess[i]):
+                    words_array.remove(word)
+        # Check if the color is yellow
+        elif color[i] == Colors.YELLOW.value:
+            pass # Modifies word list based on the letter
+        # Check if the color is green
+        elif color[i] == Colors.GREEN.value:
+            pass
+
+
+
+def assistant_algorithm(guesses_remaining: int):
+    while guesses_remaining > 0:
+        ## Data that needs printed every iteration
+        print(words_array)
+        print("-" * 75)
+        displays.assistant_display(guesses_remaining, words_guessed, confirmed_letter)
+        guess = program_functions.guess()
+        words_guessed.append(guess)
+        color = program_functions.color()
+        compare_words(words_array, guess, color)
+        guesses_remaining -= 1
+        sleep(1)
+
 
 
 if __name__ == "__main__":
     selection = displays.main_menu()
     if selection == "1": # Start the Wordle Assistant
+        assistant_algorithm(guesses_remaining)
+        
+        
+        
+        '''
         while guesses_remaining != 0:
             system_functions.clear()
             if guesses_remaining <= 5:
@@ -71,5 +112,6 @@ if __name__ == "__main__":
         else:
             system_functions.clear()
             print("Game over. Try again tomorrow!")
+        '''
     elif selection == "3":
-        system_functions.exit() # Exit the program
+        program_functions.exit() # Exit the program

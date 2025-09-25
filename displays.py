@@ -1,7 +1,13 @@
-import system_functions
+import program_functions
 from time import sleep
 
 def main_menu():
+    """
+    A function that displays the main menu of the program
+
+    :return: The menu option used to navigate through this menu
+    :rtype: string
+    """
     print("Welcome to the Wordle Assistant!")
     print("-" * 75)
     print("1) Assist Today's Wordle")
@@ -22,10 +28,13 @@ def main_menu():
     except ValueError: # Something is entered that is not "1" or "2"
         print("Invalid selection. Please try again.")
         sleep(2)
-        system_functions.clear()
+        program_functions.clear()
         main_menu()
 
 def assistant_display(guesses_remaining, guesses, confirmed_letters):
+    """
+    A function that displays important statistics and data in regards to the assistant
+    """
     print("Guesses Remaining: " + str(guesses_remaining))
     print("-" * 75)
     print("Guesses Made: " + str(guesses))
