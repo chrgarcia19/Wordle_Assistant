@@ -1,6 +1,8 @@
 import program_functions
 from time import sleep
 
+MAX_CHARS = 71
+
 def main_menu():
     """
     A function that displays the main menu of the program
@@ -9,12 +11,12 @@ def main_menu():
     :rtype: string
     """
     print("Welcome to the Wordle Assistant!")
-    print("-" * 75)
+    print("-" * MAX_CHARS)
     print("1) Assist Today's Wordle")
     print("2) Exit Program")
-    print("-" * 75)
+    print("-" * MAX_CHARS)
     print("Created by Christian Garcia - https://github.com/chrgarcia19")
-    print("-" * 75)
+    print("-" * MAX_CHARS)
 
     # Get user selection
     options = ["1", "2"]
@@ -36,9 +38,9 @@ def assistant_display(guesses_remaining, guesses, confirmed_letters):
     A function that displays important statistics and data in regards to the assistant
     """
     print("Guesses Remaining: " + str(guesses_remaining))
-    print("-" * 75)
-    print("Guesses Made: " + str(guesses))
-    print("-" * 75)
-    print("Confirmed letters: " + str(confirmed_letters))
-    print("-" * 75)
+    print("-" * MAX_CHARS)
+    print("Guesses Made: " + " | ".join(guesses))
+    print("-" * MAX_CHARS)
+    print("Confirmed letters: " + "".join(confirmed_letters))
+    print("-" * MAX_CHARS)
                 

@@ -3,6 +3,7 @@ from time import sleep
 
 import displays
 import program_functions
+import textwrap
 
 class Colors(Enum):
     BLACK = "B"
@@ -19,59 +20,50 @@ words_file.close()
 
 guesses_remaining = 6
 words_guessed = []
-confirmed_letter = "?????"
-
-'''
-guesses_remaining = 6
-guesses_array = []
-color_array = []
-confirmed_letters = [""] * 5
-
-def compare_string(words_array: [], guess: str, colors: []):
-    for i in range(len(guess)):
-        if int(colors[i]) == Colors.BLACK.value:
-            for word in words_array[:]:
-                if word.__contains__(guess[i]):
-                    words_array.remove(word)
-        elif int(colors[i]) == Colors.GREEN.value:
-            confirmed_letters.__setitem__(i, guess[i])
-            for word in words_array[:]:
-                if guess[i] != word[i]:
-                    words_array.remove(word)
-        elif int(colors[i]) == Colors.YELLOW.value:
-            for word in words_array[:]:
-                if word.__contains__(guess[i]) and guess[i] == word[i]:
-                    words_array.remove(word)
-'''
+confirmed_letters = ["?"] * 5
 
 def compare_words(words_array, guess: str, color: str):
     for i in range(len(guess)):
-        # Check if the color is black
-        if color[i] == Colors.BLACK.value:
+        # Check if the color is green
+        if color[i] == Colors.GREEN.value:
+            confirmed_letters[i] = guess[i]
             for word in words_array[:]:
-                if word.__contains__(guess[i]):
+                # Check if the confirmed letter matches the same spot in each word in the word list
+                if word[i] != guess[i]:
                     words_array.remove(word)
         # Check if the color is yellow
         elif color[i] == Colors.YELLOW.value:
-            pass # Modifies word list based on the letter
-        # Check if the color is green
-        elif color[i] == Colors.GREEN.value:
-            pass
+            # Modifies word list based on the letter
+            for word in words_array[:]:
+                # Filters out words that do not contain the guess letter
+                if not word.__contains__(guess[i]):
+                    words_array.remove(word)
+                # Check if the character at the guess index is the same as the one at the word index
+                if word.__contains__(guess[i]) and word[i] == guess[i]:
+                    words_array.remove(word)
+        # Check if the color is black
+        elif color[i] == Colors.BLACK.value:
+            for word in words_array[:]:
+                if word.__contains__(guess[i]):
+                    words_array.remove(word)
 
 
 
 def assistant_algorithm(guesses_remaining: int):
     while guesses_remaining > 0:
         ## Data that needs printed every iteration
-        print(words_array)
-        print("-" * 75)
-        displays.assistant_display(guesses_remaining, words_guessed, confirmed_letter)
+        cleaned_words = " ".join(words_array)
+        wrapped_word_list = textwrap.fill(cleaned_words, width=displays.MAX_CHARS)
+        print(wrapped_word_list)
+        print("-" * displays.MAX_CHARS)
+        displays.assistant_display(guesses_remaining, words_guessed, confirmed_letters)
         guess = program_functions.guess()
         words_guessed.append(guess)
         color = program_functions.color()
         compare_words(words_array, guess, color)
         guesses_remaining -= 1
         sleep(1)
+        program_functions.clear()
 
 
 
