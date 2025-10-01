@@ -1,3 +1,4 @@
+from collections import Counter
 from enum import Enum
 from time import sleep
 
@@ -23,6 +24,12 @@ words_guessed = []
 confirmed_letters = ["?"] * 5
 
 def compare_words(words_array, guess: str, color: str):
+    # Count the confirmed letters before checking matches
+    required_letter_counts = Counter()
+    for i in range(len(guess)):
+        if color[i] in (Colors.GREEN.value, Colors.YELLOW.value):
+            required_letter_counts[guess[i]] += 1
+
     for i in range(len(guess)):
         # Check if the color is green
         if color[i] == Colors.GREEN.value:
@@ -44,7 +51,7 @@ def compare_words(words_array, guess: str, color: str):
         # Check if the color is black
         elif color[i] == Colors.BLACK.value:
             for word in words_array[:]:
-                if word.__contains__(guess[i]):
+                if word.count(guess[i]) > required_letter_counts[guess[i]]:
                     words_array.remove(word)
 
 
@@ -60,10 +67,20 @@ def assistant_algorithm(guesses_remaining: int):
         guess = program_functions.guess()
         words_guessed.append(guess)
         color = program_functions.color()
-        compare_words(words_array, guess, color)
-        guesses_remaining -= 1
-        sleep(1)
+        if color == "GGGGG":
+            program_functions.clear()
+            print("CONGRATULATIONS!! You discovered today's Wordle!")
+            print("Today's word was: " + guess)
+            print("Thank you for using the Wordle Assistant! See you again soon!")
+            break
+        else: 
+            compare_words(words_array, guess, color)
+            guesses_remaining -= 1
+            sleep(1)
+            program_functions.clear()
+    else:
         program_functions.clear()
+        print("GAME OVER! Try again tomorrow! Good luck!")
 
 
 
