@@ -6,6 +6,15 @@ import textwrap
 import displays
 
 def wrap_word_list(word_list):
+    """
+    A function that takes an array of words and combines them
+    into a string for a neat display
+    :param a: An array of 5 letter strings
+    :type a: string array
+
+    :return: The joined string from the array
+    :rtype: string
+    """
     cleaned_words = " ".join(word_list)
     return textwrap.fill(cleaned_words, width=displays.MAX_CHARS)
 
@@ -45,10 +54,12 @@ def guess():
             print("A guess must be 5 letters!")
             sleep(2)
             clear()
+            return displays.INVALID
         except TypeError:
             print("A guess must contain only letters!")
             sleep(2)
             clear()
+            return displays.INVALID
 
 def color():
     """
@@ -71,9 +82,18 @@ def color():
                 return color
         except ValueError:
             print("A color matching sequence should be 5 characters!")
+            sleep(2)
+            clear()
+            return displays.INVALID
         except TypeError:
             print("A color matching sequence must contain only b, y, or g")
+            sleep(2)
+            clear()
+            return displays.INVALID
         except Exception:
             print("A color matching sequence must contain only b, y, or g")
+            sleep(2)
+            clear()
+            return displays.INVALID
     
         

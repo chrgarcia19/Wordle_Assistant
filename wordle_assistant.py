@@ -4,7 +4,6 @@ from time import sleep
 
 import displays
 import program_functions
-import textwrap
 
 class Colors(Enum):
     BLACK = "B"
@@ -58,12 +57,19 @@ def compare_words(words_array, guess: str, color: str):
 
 def assistant_algorithm(guesses_remaining: int):
     while guesses_remaining > 0:
-        ## Data that needs printed every iteration
-        word_list = program_functions.wrap_word_list(words_array)
-        displays.assistant_display(guesses_remaining, words_guessed, confirmed_letters, word_list)
-        guess = program_functions.guess()
+        # Set guess and color to invalid to run their respective loops
+        guess, color = displays.INVALID, displays.INVALID
+        ## Data that needs printed every time a the guess()/color() is called
+        while guess == displays.INVALID:
+            word_list = program_functions.wrap_word_list(words_array)
+            displays.assistant_display(guesses_remaining, words_guessed, confirmed_letters, word_list)
+            guess = program_functions.guess()
         words_guessed.append(guess)
-        color = program_functions.color()
+        while color == displays.INVALID:
+            word_list = program_functions.wrap_word_list(words_array)
+            displays.assistant_display(guesses_remaining, words_guessed, confirmed_letters, word_list)
+            print("Word Guessed: " + guess)
+            color = program_functions.color()
         if color == "GGGGG":
             program_functions.clear()
             print("CONGRATULATIONS!! You discovered today's Wordle!")

@@ -2,6 +2,8 @@ import program_functions
 from time import sleep
 
 MAX_CHARS = 71
+MAX_WORD_LEN = 5
+INVALID = "Invalid"
 
 def main_menu():
     """
@@ -36,6 +38,15 @@ def main_menu():
 
 def assistant_display(guesses_remaining, guesses, confirmed_letters, word_list):
     """
+    :param a: The guesses remaining
+    :type a: int
+    :param b: The guesses made by the user
+    :type b: Array of strings
+    :param c: The green letters confirmed to be in the word
+    :type c: Array of 1 character strings of length 5
+    :param d: The master word list
+    :type d: Array of 5 letter strings
+     
     A function that displays important statistics and data in regards to the assistant
     """
     print(word_list)
