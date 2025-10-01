@@ -1,6 +1,13 @@
 from os import system, name
-import sys
 from time import sleep
+
+import sys
+import textwrap
+import displays
+
+def wrap_word_list(word_list):
+    cleaned_words = " ".join(word_list)
+    return textwrap.fill(cleaned_words, width=displays.MAX_CHARS)
 
 def clear():
     """
@@ -25,22 +32,23 @@ def guess():
     :return: The lowercase and stripped version of the user's guess
     :rtype: string
     """
-    guess = input("Guess a word: ").lower().strip()
-    try: 
-        if (len(guess) != 5):
-            raise ValueError
-        elif not guess.isalpha():
-            raise TypeError
-        else:
-            return guess
-    except ValueError:
-        print("A guess must be 5 letters!")
-        sleep(2)
-        clear()
-    except TypeError:
-        print("A guess must contain only letters!")
-        sleep(2)
-        clear()
+    while True:
+        guess = input("Guess a word: ").lower().strip()
+        try: 
+            if (len(guess) != 5):
+                raise ValueError
+            elif not guess.isalpha():
+                raise TypeError
+            else:
+                return guess
+        except ValueError:
+            print("A guess must be 5 letters!")
+            sleep(2)
+            clear()
+        except TypeError:
+            print("A guess must contain only letters!")
+            sleep(2)
+            clear()
 
 def color():
     """
@@ -50,21 +58,22 @@ def color():
     :rtype: string
     """
     allowed = ["B", "Y", "G"]
-    color = input("Enter the color corresponding to each letter (Black = b | Yellow = y | Green = g): \n").upper().strip()
-    try:
-        if (len(color) != 5):
-            raise ValueError
-        elif not color.isalpha():
-            raise TypeError
-        elif not all (char in allowed for char in color):
-            raise Exception
-        else: 
-            return color
-    except ValueError:
-        print("A color matching sequence should be 5 characters!")
-    except TypeError:
-        print("A color matching sequence must contain only b, y, or g")
-    except Exception:
-        print("A color matching sequence must contain only b, y, or g")
+    while True:
+        color = input("Enter the color corresponding to each letter (Black = b | Yellow = y | Green = g): \n").upper().strip()
+        try:
+            if (len(color) != 5):
+                raise ValueError
+            elif not color.isalpha():
+                raise TypeError
+            elif not all (char in allowed for char in color):
+                raise Exception
+            else: 
+                return color
+        except ValueError:
+            print("A color matching sequence should be 5 characters!")
+        except TypeError:
+            print("A color matching sequence must contain only b, y, or g")
+        except Exception:
+            print("A color matching sequence must contain only b, y, or g")
     
         
