@@ -1,6 +1,17 @@
 # Wordle_Assistant
-This is a program written in Python3 which assists a user with the daily Wordle from the New York Times (https://www.nytimes.com/games
-wordle/index.html). The program goes through a master list of 5 letter words, which are contained in wordlewords.txt, and narrows down the
-possible list of words that could be the correct word of the day. This is still a work in progress with functionality for Black and Green labelled words
-working properly. Yellow labelled words require more testing. Words consisting of two of the same letter where one is in the correct place and the
-other is not breaks the program.
+This is a basic, bare bones command line program that assists a user with the daily Wordle from the New York Times website. The program goes through a master list of words taken from the game's source code and narrows down the list based on your guesses. 
+
+## What's the Purpose?
+This simple program is meant to be used as a resource on your daily Wordle game. The main idea is for this program to help you make super educated guesses on the daily Wordle without getting the word explicitly given to you.  
+
+## Special Thanks
+Some special thanks must be given for this project coming together as seamlessly as it did. Here they are, as follows:
+- The Wordle List: [https://github.com/tabatkins/wordle-list/tree/main] created by Tab Atkins Jr. and Rens Oliemans
+- The Wordle game itself: [https://www.nytimes.com/games/wordle/index.html] created and maintained by The New York Times. 
+
+### Tools and Technologies Used
+- Python 3
+- Git/GitHub
+
+### To Download and Use
+
