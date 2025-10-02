@@ -88,6 +88,7 @@ def assistant_algorithm(guesses_remaining: int):
 
 
 if __name__ == "__main__":
+    program_functions.clear()
     selection = displays.main_menu()
     if selection == "1": # Start the Wordle Assistant
         assistant_algorithm(guesses_remaining)
