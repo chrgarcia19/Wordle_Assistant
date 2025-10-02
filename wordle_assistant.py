@@ -68,13 +68,13 @@ def assistant_algorithm(guesses_remaining: int):
         while color == displays.INVALID:
             word_list = program_functions.wrap_word_list(words_array)
             displays.assistant_display(guesses_remaining, words_guessed, confirmed_letters, word_list)
-            print("Word Guessed: " + guess)
+            print(" Word Guessed: " + guess)
             color = program_functions.color()
         if color == "GGGGG":
             program_functions.clear()
-            print("CONGRATULATIONS!! You discovered today's Wordle!")
-            print("Today's word was: " + guess)
-            print("Thank you for using the Wordle Assistant! See you again soon!")
+            print(" CONGRATULATIONS!! You discovered today's Wordle!")
+            print(" Today's word was: " + guess)
+            print(" Thank you for using the Wordle Assistant! See you again soon!")
             break
         else: 
             compare_words(words_array, guess, color)
@@ -83,7 +83,7 @@ def assistant_algorithm(guesses_remaining: int):
             program_functions.clear()
     else:
         program_functions.clear()
-        print("GAME OVER! Try again tomorrow! Good luck!")
+        print(" GAME OVER! Try again tomorrow! Good luck!")
 
 
 

@@ -16,7 +16,7 @@ def wrap_word_list(word_list):
     :rtype: string
     """
     cleaned_words = " ".join(word_list)
-    return textwrap.fill(cleaned_words, width=displays.MAX_CHARS)
+    return textwrap.fill(cleaned_words, width=displays.MAX_CHARS, initial_indent=" ", subsequent_indent=" ")
 
 def clear():
     """
@@ -31,7 +31,7 @@ def exit():
     """
     Exits the program.
     """
-    print("Exiting program...")
+    print(" Exiting program...")
     sys.exit()
 
 def guess():
@@ -42,7 +42,7 @@ def guess():
     :rtype: string
     """
     while True:
-        guess = input("Guess a word: ").lower().strip()
+        guess = input(" Guess a word: ").lower().strip()
         try: 
             if (len(guess) != 5):
                 raise ValueError
@@ -51,12 +51,12 @@ def guess():
             else:
                 return guess
         except ValueError:
-            print("A guess must be 5 letters!")
+            print(" A guess must be 5 letters!")
             sleep(2)
             clear()
             return displays.INVALID
         except TypeError:
-            print("A guess must contain only letters!")
+            print(" A guess must contain only letters!")
             sleep(2)
             clear()
             return displays.INVALID
@@ -70,7 +70,7 @@ def color():
     """
     allowed = ["B", "Y", "G"]
     while True:
-        color = input("Enter the color corresponding to each letter (Black = b | Yellow = y | Green = g): \n").upper().strip()
+        color = input(" Enter the color corresponding to each letter (Black = b | Yellow = y | Green = g): \n ").upper().strip()
         try:
             if (len(color) != 5):
                 raise ValueError
@@ -81,17 +81,17 @@ def color():
             else: 
                 return color
         except ValueError:
-            print("A color matching sequence should be 5 characters!")
+            print(" A color matching sequence should be 5 characters!")
             sleep(2)
             clear()
             return displays.INVALID
         except TypeError:
-            print("A color matching sequence must contain only b, y, or g")
+            print(" A color matching sequence must contain only b, y, or g")
             sleep(2)
             clear()
             return displays.INVALID
         except Exception:
-            print("A color matching sequence must contain only b, y, or g")
+            print(" A color matching sequence must contain only b, y, or g")
             sleep(2)
             clear()
             return displays.INVALID
