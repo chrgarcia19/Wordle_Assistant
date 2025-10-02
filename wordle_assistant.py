@@ -18,7 +18,7 @@ for word in sorted(words_file):
     words_array.append(word.replace("\n", ""))
 words_file.close()
 
-guesses_remaining = 6
+guesses_made = 0
 words_guessed = []
 confirmed_letters = ["?"] * 5
 
@@ -55,21 +55,23 @@ def compare_words(words_array, guess: str, color: str):
 
 
 
-def assistant_algorithm(guesses_remaining: int):
-    while guesses_remaining > 0:
+def assistant_algorithm(guesses_made: int):
+    while guesses_made < 6:
         # Set guess and color to invalid to run their respective loops
         guess, color = displays.INVALID, displays.INVALID
         ## Data that needs printed every time a the guess()/color() is called
         while guess == displays.INVALID:
+            program_functions.clear()
             word_list = program_functions.wrap_word_list(words_array)
-            displays.assistant_display(guesses_remaining, words_guessed, confirmed_letters, word_list)
+            displays.assistant_display(guesses_made, words_guessed, confirmed_letters, word_list)
             guess = program_functions.guess()
-        words_guessed.append(guess)
         while color == displays.INVALID:
+            program_functions.clear()
             word_list = program_functions.wrap_word_list(words_array)
-            displays.assistant_display(guesses_remaining, words_guessed, confirmed_letters, word_list)
+            displays.assistant_display(guesses_made, words_guessed, confirmed_letters, word_list)
             print(" Word Guessed: " + guess)
             color = program_functions.color()
+        words_guessed.append(guess)
         if color == "GGGGG":
             program_functions.clear()
             print(" CONGRATULATIONS!! You discovered today's Wordle!")
@@ -78,7 +80,7 @@ def assistant_algorithm(guesses_remaining: int):
             break
         else: 
             compare_words(words_array, guess, color)
-            guesses_remaining -= 1
+            guesses_made += 1
             sleep(1)
             program_functions.clear()
     else:
@@ -91,7 +93,7 @@ if __name__ == "__main__":
     program_functions.clear()
     selection = displays.main_menu()
     if selection == "1": # Start the Wordle Assistant
-        assistant_algorithm(guesses_remaining)
+        assistant_algorithm(guesses_made)
     elif selection == "2":
         pass
         ## Add settings 

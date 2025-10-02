@@ -36,7 +36,7 @@ def main_menu():
             sleep(2)
             program_functions.clear()
 
-def assistant_display(guesses_remaining, guesses, confirmed_letters, word_list):
+def assistant_display(guesses_made, guesses, confirmed_letters, word_list):
     """
     :param a: The guesses remaining
     :type a: int
@@ -51,10 +51,10 @@ def assistant_display(guesses_remaining, guesses, confirmed_letters, word_list):
     """
     print(word_list)
     print("-" * MAX_CHARS)
-    print(" Guesses Remaining: " + str(guesses_remaining))
+    print(" Number of Guesses: " + str(guesses_made+1) + "/6")
     print("-" * MAX_CHARS)
-    print(" Guesses Made: " + " | ".join(guesses))
+    print(" Words Guessed: " + " | ".join(guesses))
     print("-" * MAX_CHARS)
-    print(" Confirmed letters: " + "".join(confirmed_letters))
+    print(" Confirmed Letters: " + "".join(confirmed_letters))
     print("-" * MAX_CHARS)
                 
