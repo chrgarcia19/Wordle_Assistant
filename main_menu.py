@@ -1,13 +1,14 @@
 from time import sleep
 from game_algorithm import GameAlgorithm
+from menu import Menu
 from program_functions import clear, exit
 
-class MainMenu:
+class MainMenu(Menu):
     def __init__(self):
         self.selection = ""
         self.MAX_CHARS = 85
 
-    def show_main_menu(self):
+    def show_menu(self):
         """
         A function that displays the main menu of the program
         """
@@ -27,7 +28,7 @@ class MainMenu:
         """
         options = ["1", "2", "3"]
         while True:
-            self.show_main_menu()
+            self.show_menu()
             # Get user selection
             value = input(" Select an option (1-3): ").strip()
             # Validate user input

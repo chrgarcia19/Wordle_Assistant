@@ -1,18 +1,19 @@
 from time import sleep
+from menu import Menu
 from program_functions import clear
 
 
-class GameMenu:
+class GameMenu(Menu):
     def __init__(self):
         self.selection = ""
 
-    def show_game_menu(self):
+    def show_menu(self):
         print(" 1) Sort the Word List      2) Guess a Word      3) Back to Main Menu")
 
     def get_selection(self):
         options = ["1", "2", "3"]
         while True:
-            self.show_game_menu()
+            self.show_menu()
             # Get user selection
             value = input(" Select an option (1-3): ").strip()
             # Validate user input
@@ -26,11 +27,3 @@ class GameMenu:
                 print(" Invalid selection. Please try again.")
                 sleep(2)
                 clear()
-
-    def handle_user_selection(self):
-        if self.selection == "1": # Sort word list menu
-            pass
-        elif self.selection == "2": # Guess a word
-            pass
-        elif self.selection == "3": # Go back to main menu
-            pass

@@ -2,6 +2,8 @@ from collections import Counter
 from enum import Enum
 from time import sleep
 from colorama import Fore, Style
+from game_menu import GameMenu
+from master_word_list import MasterWordList
 from program_functions import clear, exit
 
 import displays
@@ -12,26 +14,35 @@ class Colors(Enum):
     YELLOW = "Y"
     GREEN = "G"
 
-class GameAlgorithm:
+class GameAlgorithm(GameMenu):
     def __init__(self):
-        self.word_list = []
-        self.sorted_list = []
         self.guesses_made = 0
         self.guesses = {"word": [], "color": []}
         self.confirmed_letters = ["?"] * 5
         self.guess = "Invalid"
         self.color = "Invalid"
+        self.words =  MasterWordList()
 
-        # Import words into the game when this class is created
-        self.import_words()
-
-    def import_words(self):
-        # open wordlewords.txt file
-        words_file = open("wordlewords.txt", "r")
-        # extract all words into an array to be modified
-        for word in sorted(words_file):
-            self.word_list.append(word.replace("\n", ""))
-        words_file.close()
+    def handle_user_selection(self):
+        if self.selection == "1": # Sort word list menu
+            self.words.get_selection()
+            self.words.handle_user_selection()
+        elif self.selection == "2": # Guess a word
+            while self.guess == "Invalid":
+                program_functions.clear()
+                wrapped_word_list = program_functions.wrap_word_list(self.words.display_list)
+                displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
+                self.guess = self.guess_word()
+            while self.color == "Invalid":
+                program_functions.clear()
+                wrapped_word_list = program_functions.wrap_word_list(self.words.display_list)
+                displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
+                print(" Word Guessed: " + self.guess)
+                self.color = self.add_color()
+            self.guesses["word"].append(self.guess)
+            self.guesses["color"].append(self.color)
+        elif self.selection == "3": # Go back to main menu
+            print("Going back to the main menu...")
 
     def guess_word(self):
         """
@@ -94,38 +105,20 @@ class GameAlgorithm:
                 sleep(2)
                 clear()
                 return "Invalid"
-            
-    def sort_by(self, letter: str):
-        """
-        A function that sorts the word list by the starting letter of the word.
-
-        :param a: The user inputted letter to sort by
-        :type a: string
-        """
-        # Clear before reassigning list
-        self.sorted_list.clear()
-        for word in self.word_list:
-            if word.startswith(letter.lower()):
-                self.sorted_list.append(word)
 
     def assistant_algorithm(self):
         while self.guesses_made < 6:
             # Set guess and color to invalid to run their respective loops
             self.guess, self.color = "Invalid", "Invalid"
-            ## Data that needs printed every time a the guess()/color() is called
-            while self.guess == "Invalid":
-                program_functions.clear()
-                wrapped_word_list = program_functions.wrap_word_list(self.word_list)
-                displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
-                self.guess = self.guess_word()
-            while self.color == "Invalid":
-                program_functions.clear()
-                wrapped_word_list = program_functions.wrap_word_list(self.word_list)
-                displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
-                print(" Word Guessed: " + self.guess)
-                self.color = self.add_color()
-            self.guesses["word"].append(self.guess)
-            self.guesses["color"].append(self.color)
+
+            program_functions.clear()
+            wrapped_word_list = program_functions.wrap_word_list(self.words.display_list)
+            displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
+            
+            self.get_selection()
+            self.handle_user_selection()
+
+
             if self.color == "GGGGG":
                 program_functions.clear()
                 print(" CONGRATULATIONS!! You discovered today's Wordle!")
@@ -151,22 +144,22 @@ class GameAlgorithm:
             # Check if the color is green
             if self.color[i] == Colors.GREEN.value:
                 self.confirmed_letters[i] = Fore.GREEN + self.guess[i] + Style.RESET_ALL
-                for word in self.word_list[:]:
+                for word in self.words.display_list[:]:
                     # Check if the confirmed letter matches the same spot in each word in the word list
                     if word[i] != self.guess[i]:
-                        self.word_list.remove(word)
+                        self.words.display_list.remove(word)
             # Check if the color is yellow
             elif self.color[i] == Colors.YELLOW.value:
                 # Modifies word list based on the letter
-                for word in self.word_list[:]:
+                for word in self.words.display_list[:]:
                     # Filters out words that do not contain the guess letter
                     if not word.__contains__(self.guess[i]):
-                        self.word_list.remove(word)
+                        self.words.display_list.remove(word)
                     # Check if the character at the guess index is the same as the one at the word index
                     if word.__contains__(self.guess[i]) and word[i] == self.guess[i]:
-                        self.word_list.remove(word)
+                        self.words.display_list.remove(word)
             # Check if the color is black
             elif self.color[i] == Colors.BLACK.value:
-                for word in self.word_list[:]:
+                for word in self.words.display_list[:]:
                     if word.count(self.guess[i]) > required_letter_counts[self.guess[i]]:
-                        self.word_list.remove(word)
+                        self.words.display_list.remove(word)
