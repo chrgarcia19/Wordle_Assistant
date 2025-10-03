@@ -22,6 +22,18 @@ def wrap_word_list(word_list):
     return textwrap.fill(cleaned_words, width=displays.MAX_CHARS, initial_indent=" ", subsequent_indent=" ")
 
 def display_colored_word(word, color):
+    """
+    A function that applies the proper color to each character
+    in the user's guess. 
+
+    :param a: The word guessed
+    :type a: string
+    :param b: The color code corresponding to the word
+    :type b: string
+
+    :return: The string with each color applied to the word
+    :rtype: string
+    """
     final_string = ""
     for i in range(displays.MAX_WORD_LEN):
         if color[i] == "B":
@@ -33,6 +45,18 @@ def display_colored_word(word, color):
     return final_string
 
 def convert_to_string(words_with_colors):
+    """
+    A function that strips the list from the words_with_colors dict.
+    From here, it calls the display_colored_word to assign the proper
+    color styles to each character. This returns a string to be
+    printed on the game menu.
+
+    :param a: The dictionary of words and their corresponding color code
+    :type a: dict
+
+    :return: The string with the appropriate color modifications
+    :rtype: string
+    """
     final_string = ""
     words = words_with_colors["word"]
     colors = words_with_colors["color"]

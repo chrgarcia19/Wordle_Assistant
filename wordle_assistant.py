@@ -1,7 +1,7 @@
 from collections import Counter
 from enum import Enum
 from time import sleep
-from colorama import init, Fore, Back, Style
+from colorama import Fore, Style
 
 import displays
 import program_functions
