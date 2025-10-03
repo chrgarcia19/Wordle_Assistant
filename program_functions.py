@@ -1,9 +1,12 @@
 from os import system, name
 from time import sleep
+from colorama import init, Fore, Back, Style
 
 import sys
 import textwrap
 import displays
+
+init(autoreset=True)
 
 def wrap_word_list(word_list):
     """
@@ -17,6 +20,26 @@ def wrap_word_list(word_list):
     """
     cleaned_words = " ".join(word_list)
     return textwrap.fill(cleaned_words, width=displays.MAX_CHARS, initial_indent=" ", subsequent_indent=" ")
+
+def display_colored_word(word, color):
+    final_string = ""
+    for i in range(displays.MAX_WORD_LEN):
+        if color[i] == "B":
+            final_string += Fore.BLACK + word[i]
+        elif color[i] == "Y":
+            final_string += Fore.YELLOW + word[i]
+        elif color[i] == "G":
+            final_string += Fore.GREEN + word[i]
+    return final_string
+
+def convert_to_string(words_with_colors):
+    final_string = ""
+    words = words_with_colors["word"]
+    colors = words_with_colors["color"]
+    for i in range(len(words)):
+        colored_word = display_colored_word(words[i], colors[i])
+        final_string += str(i+1) + ") " + (Back.WHITE + Style.BRIGHT + colored_word) + (Style.RESET_ALL + " | ")
+    return final_string
 
 def clear():
     """

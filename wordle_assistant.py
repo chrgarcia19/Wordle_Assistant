@@ -1,6 +1,7 @@
 from collections import Counter
 from enum import Enum
 from time import sleep
+from colorama import init, Fore, Back, Style
 
 import displays
 import program_functions
@@ -19,7 +20,7 @@ for word in sorted(words_file):
 words_file.close()
 
 guesses_made = 0
-words_guessed = []
+words_guessed = {"word": [], "color": []}
 confirmed_letters = ["?"] * 5
 
 def compare_words(words_array, guess: str, color: str):
@@ -32,7 +33,7 @@ def compare_words(words_array, guess: str, color: str):
     for i in range(len(guess)):
         # Check if the color is green
         if color[i] == Colors.GREEN.value:
-            confirmed_letters[i] = guess[i]
+            confirmed_letters[i] = Fore.GREEN + guess[i] + Style.RESET_ALL
             for word in words_array[:]:
                 # Check if the confirmed letter matches the same spot in each word in the word list
                 if word[i] != guess[i]:
@@ -61,17 +62,18 @@ def assistant_algorithm(guesses_made: int):
         guess, color = displays.INVALID, displays.INVALID
         ## Data that needs printed every time a the guess()/color() is called
         while guess == displays.INVALID:
-            program_functions.clear()
+            #program_functions.clear()
             word_list = program_functions.wrap_word_list(words_array)
             displays.assistant_display(guesses_made, words_guessed, confirmed_letters, word_list)
             guess = program_functions.guess()
         while color == displays.INVALID:
-            program_functions.clear()
+            #program_functions.clear()
             word_list = program_functions.wrap_word_list(words_array)
             displays.assistant_display(guesses_made, words_guessed, confirmed_letters, word_list)
             print(" Word Guessed: " + guess)
             color = program_functions.color()
-        words_guessed.append(guess)
+        words_guessed["word"].append(guess)
+        words_guessed["color"].append(color)
         if color == "GGGGG":
             program_functions.clear()
             print(" CONGRATULATIONS!! You discovered today's Wordle!")
@@ -82,7 +84,6 @@ def assistant_algorithm(guesses_made: int):
             compare_words(words_array, guess, color)
             guesses_made += 1
             sleep(1)
-            program_functions.clear()
     else:
         program_functions.clear()
         print(" GAME OVER! Try again tomorrow! Good luck!")
