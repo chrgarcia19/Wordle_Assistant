@@ -22,7 +22,7 @@ class MasterWordList(Menu):
         words_file.close()
 
     def show_menu(self):
-        print(" 1) Sort by Starting Letter          2) Sort by Ending Letter          3) Show Original List          4) Guess a Word")
+        print(" 1) Starting Letter Sort | 2) Ending Letter Sort | 3) Show Original List | 4) Back")
 
     def show_letter_options(self):
         self.letter_selection = ""
@@ -53,7 +53,8 @@ class MasterWordList(Menu):
         elif self.selection == "3":
             self.display_list = self.word_list
         elif self.selection == "4":
-            pass
+            print(" Going back to game menu...")
+            return
 
     def get_selection(self):
         options = ["1", "2", "3", "4"]

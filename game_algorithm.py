@@ -22,11 +22,15 @@ class GameAlgorithm(GameMenu):
         self.guess = "Invalid"
         self.color = "Invalid"
         self.words =  MasterWordList()
+        self.exit_game = False
+        self.progress_game = False
 
     def handle_user_selection(self):
         if self.selection == "1": # Sort word list menu
-            self.words.get_selection()
-            self.words.handle_user_selection()
+            self.words.selection = ""
+            while self.words.selection != "4":
+                self.words.get_selection()
+                self.words.handle_user_selection()
         elif self.selection == "2": # Guess a word
             while self.guess == "Invalid":
                 program_functions.clear()
@@ -39,10 +43,13 @@ class GameAlgorithm(GameMenu):
                 displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
                 print(" Word Guessed: " + self.guess)
                 self.color = self.add_color()
+            self.progress_game = True
             self.guesses["word"].append(self.guess)
             self.guesses["color"].append(self.color)
         elif self.selection == "3": # Go back to main menu
-            print("Going back to the main menu...")
+            print(" Going back to the main menu...")
+            self.exit_game = True
+            return
 
     def guess_word(self):
         """
@@ -110,6 +117,8 @@ class GameAlgorithm(GameMenu):
         while self.guesses_made < 6:
             # Set guess and color to invalid to run their respective loops
             self.guess, self.color = "Invalid", "Invalid"
+            # Reset progress game so guesses made does not increment incorrectly
+            self.progress_game = False
 
             program_functions.clear()
             wrapped_word_list = program_functions.wrap_word_list(self.words.display_list)
@@ -118,6 +127,9 @@ class GameAlgorithm(GameMenu):
             self.get_selection()
             self.handle_user_selection()
 
+            if self.exit_game:
+                program_functions.clear()
+                return 
 
             if self.color == "GGGGG":
                 program_functions.clear()
@@ -125,10 +137,11 @@ class GameAlgorithm(GameMenu):
                 print(" Today's word was: " + self.guess)
                 print(" Thank you for using the Wordle Assistant! See you again soon!")
                 break
-            else: 
-                self.compare_words()
-                self.guesses_made += 1
-                sleep(1)
+            else:
+                if self.progress_game: 
+                    self.compare_words()
+                    self.guesses_made += 1
+                    sleep(1)
         else:
             program_functions.clear()
             print(" GAME OVER! Try again tomorrow! Good luck!")
