@@ -27,6 +27,9 @@ class GameAlgorithm(GameMenu):
         if self.selection == "1": # Sort word list menu
             self.words.selection = ""
             while self.words.selection != "4":
+                clear()
+                wrapped_word_list = wrap_word_list(self.words.display_list)
+                assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
                 self.words.get_selection()
                 self.words.handle_user_selection()
         elif self.selection == "2": # Guess a word

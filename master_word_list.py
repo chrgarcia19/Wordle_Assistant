@@ -1,6 +1,6 @@
 from time import sleep
 from menu import Menu
-from program_functions import clear
+from program_functions import clear, wrap_word_list
 
 
 class MasterWordList(Menu):
@@ -54,6 +54,7 @@ class MasterWordList(Menu):
             self.display_list = self.word_list
         elif self.selection == "4":
             print(" Going back to game menu...")
+            sleep(1)
             return
 
     def get_selection(self):
