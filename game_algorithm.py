@@ -1,5 +1,6 @@
 from collections import Counter
 from enum import Enum
+from sys import exit
 from time import sleep
 from colorama import Fore, Style
 from game_menu import GameMenu
@@ -137,7 +138,7 @@ class GameAlgorithm(GameMenu):
                 print(" CONGRATULATIONS!! You discovered today's Wordle!")
                 print(" Today's word was: " + self.guess)
                 print(" Thank you for using the Wordle Assistant! See you again soon!")
-                break
+                exit()
             else:
                 if self.progress_game: 
                     self.compare_words()
@@ -146,6 +147,7 @@ class GameAlgorithm(GameMenu):
         else:
             clear()
             print(" GAME OVER! Try again tomorrow! Good luck!")
+            exit()
 
     def compare_words(self):
         # Count the confirmed letters before checking matches
