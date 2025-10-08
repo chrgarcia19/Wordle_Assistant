@@ -24,15 +24,7 @@ class GameAlgorithm(GameMenu):
         self.progress_game = False
 
     def handle_user_selection(self):
-        if self.selection == "1": # Sort word list menu
-            self.words.selection = ""
-            while self.words.selection != "4":
-                clear()
-                wrapped_word_list = wrap_word_list(self.words.display_list)
-                assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
-                self.words.get_selection()
-                self.words.handle_user_selection()
-        elif self.selection == "2": # Guess a word
+        if self.selection == "1": # Guess a word
             while self.guess == "Invalid":
                 clear()
                 wrapped_word_list = wrap_word_list(self.words.display_list)
@@ -47,6 +39,14 @@ class GameAlgorithm(GameMenu):
             self.progress_game = True
             self.guesses["word"].append(self.guess)
             self.guesses["color"].append(self.color)
+        elif self.selection == "2": # Sort word list menu
+            self.words.selection = ""
+            while self.words.selection != "4":
+                clear()
+                wrapped_word_list = wrap_word_list(self.words.display_list)
+                assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
+                self.words.get_selection()
+                self.words.handle_user_selection()
         elif self.selection == "3": # Go back to main menu
             print(" Going back to the main menu...")
             self.exit_game = True

@@ -8,7 +8,7 @@ class GameMenu(Menu):
         self.selection = ""
 
     def show_menu(self):
-        print(" 1) Sort the Word List      2) Guess a Word      3) Back to Main Menu")
+        print(" 1) Guess a Word" + " " * 13 + "2) Sort the Word List" + " " * 13 + "3) Back to Main Menu")
 
     def get_selection(self):
         options = ["1", "2", "3"]
