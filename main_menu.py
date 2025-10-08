@@ -2,6 +2,7 @@ from time import sleep
 from game_algorithm import GameAlgorithm
 from menu import Menu
 from program_functions import clear, exit
+from screen_size import Settings
 
 class MainMenu(Menu):
     def __init__(self):
@@ -15,8 +16,7 @@ class MainMenu(Menu):
         print("\n Welcome to the Wordle Assistant!")
         print("-" * self.MAX_CHARS)
         print(" 1) Assist Today's Wordle")
-        print(" 2) Settings")
-        print(" 3) Exit Program")
+        print(" 2) Exit Program")
         print("-" * self.MAX_CHARS)
         print(" Created by Christian Garcia - https://github.com/chrgarcia19")
         print("-" * self.MAX_CHARS)
@@ -26,11 +26,11 @@ class MainMenu(Menu):
         A function that gets the users input and runs it through validation
         before assigning it to selection
         """
-        options = ["1", "2", "3"]
+        options = ["1", "2"]
         while True:
             self.show_menu()
             # Get user selection
-            value = input(" Select an option (1-3): ").strip()
+            value = input(" Select an option (1-2): ").strip()
             # Validate user input
             try:
                 if value not in options:
@@ -51,7 +51,4 @@ class MainMenu(Menu):
             game = GameAlgorithm()
             game.assistant_algorithm()
         elif self.selection == "2":
-            pass
-            ## Add settings 
-        elif self.selection == "3":
             exit() # Exit the program

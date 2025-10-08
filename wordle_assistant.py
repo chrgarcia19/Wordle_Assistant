@@ -1,10 +1,13 @@
 from main_menu import MainMenu
 
-import program_functions
+from program_functions import clear
+from screen_size import ScreenSize
 
 if __name__ == "__main__":
+    window = ScreenSize()
+    window.set_screen_size()
     while True:
-        program_functions.clear()
+        clear()
         main = MainMenu()
         main.get_selection()
         main.handle_user_selection()

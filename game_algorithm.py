@@ -4,7 +4,7 @@ from time import sleep
 from colorama import Fore, Style
 from game_menu import GameMenu
 from master_word_list import MasterWordList
-from program_functions import clear, exit
+from program_functions import clear
 
 import displays
 import program_functions

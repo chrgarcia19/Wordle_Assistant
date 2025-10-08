@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 class Menu(ABC):
     def __init__(self):
         self.selection = ""
-        self.MAX_CHARS = 85
 
     @abstractmethod
     def show_menu(self):
