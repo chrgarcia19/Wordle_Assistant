@@ -18,13 +18,11 @@ def assistant_display(guesses_made, guesses, confirmed_letters, word_list):
     """
     print(word_list)
     print("-" * MAX_CHARS)
-    print(" Number of Guesses: " + str(guesses_made+1) + "/6")
+    print(" Number of Guesses: " + str(guesses_made+1) + "/6" + " " * 36 + " Confirmed Letters: " + "".join(confirmed_letters))
     print("-" * MAX_CHARS)
     if guesses_made == 0:
         print(" Words Guessed: ")
     else: 
         print(" Words Guessed: " + program_functions.convert_to_string(guesses)) 
-    print("-" * MAX_CHARS)
-    print(" Confirmed Letters: " + "".join(confirmed_letters))
     print("-" * MAX_CHARS)
                 

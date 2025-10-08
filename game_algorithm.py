@@ -4,10 +4,8 @@ from time import sleep
 from colorama import Fore, Style
 from game_menu import GameMenu
 from master_word_list import MasterWordList
-from program_functions import clear
-
-import displays
-import program_functions
+from program_functions import clear, wrap_word_list
+from displays import assistant_display
 
 class Colors(Enum):
     BLACK = "B"
@@ -33,14 +31,14 @@ class GameAlgorithm(GameMenu):
                 self.words.handle_user_selection()
         elif self.selection == "2": # Guess a word
             while self.guess == "Invalid":
-                program_functions.clear()
-                wrapped_word_list = program_functions.wrap_word_list(self.words.display_list)
-                displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
+                clear()
+                wrapped_word_list = wrap_word_list(self.words.display_list)
+                assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
                 self.guess = self.guess_word()
             while self.color == "Invalid":
-                program_functions.clear()
-                wrapped_word_list = program_functions.wrap_word_list(self.words.display_list)
-                displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
+                clear()
+                wrapped_word_list = wrap_word_list(self.words.display_list)
+                assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
                 print(" Word Guessed: " + self.guess)
                 self.color = self.add_color()
             self.progress_game = True
@@ -120,19 +118,19 @@ class GameAlgorithm(GameMenu):
             # Reset progress game so guesses made does not increment incorrectly
             self.progress_game = False
 
-            program_functions.clear()
-            wrapped_word_list = program_functions.wrap_word_list(self.words.display_list)
-            displays.assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
+            clear()
+            wrapped_word_list = wrap_word_list(self.words.display_list)
+            assistant_display(self.guesses_made, self.guesses, self.confirmed_letters, wrapped_word_list)
             
             self.get_selection()
             self.handle_user_selection()
 
             if self.exit_game:
-                program_functions.clear()
+                clear()
                 return 
 
             if self.color == "GGGGG":
-                program_functions.clear()
+                clear()
                 print(" CONGRATULATIONS!! You discovered today's Wordle!")
                 print(" Today's word was: " + self.guess)
                 print(" Thank you for using the Wordle Assistant! See you again soon!")
@@ -143,7 +141,7 @@ class GameAlgorithm(GameMenu):
                     self.guesses_made += 1
                     sleep(1)
         else:
-            program_functions.clear()
+            clear()
             print(" GAME OVER! Try again tomorrow! Good luck!")
 
     def compare_words(self):
