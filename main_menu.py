@@ -2,7 +2,6 @@ from time import sleep
 from game_algorithm import GameAlgorithm
 from menu import Menu
 from program_functions import clear, exit
-from screen_size import Settings
 
 class MainMenu(Menu):
     def __init__(self):
