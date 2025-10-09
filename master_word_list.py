@@ -25,6 +25,10 @@ class MasterWordList(Menu):
         self.display_list = self.word_list
     
     def import_words(self):
+        """
+        A function that opens the wordlewords.txt file to 
+        enable the assistant to work properly
+        """
         # open wordlewords.txt file
         words_file = open(resource_path("wordlewords.txt"), "r")
         # extract all words into an array to be modified
@@ -36,6 +40,10 @@ class MasterWordList(Menu):
         print(" 1) Starting Letter Sort | 2) Ending Letter Sort | 3) Show Original List | 4) Back")
 
     def show_letter_options(self):
+        """
+        A function that allows the user to input a letter to sort the
+        word list
+        """
         self.letter_selection = ""
         while True:
             # Get user selection

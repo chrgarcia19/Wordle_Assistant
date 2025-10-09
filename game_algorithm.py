@@ -25,6 +25,9 @@ class GameAlgorithm(GameMenu):
         self.progress_game = False
 
     def handle_user_selection(self):
+        """
+        A function that handles the selection of the user based on the given menu options
+        """
         if self.selection == "1": # Guess a word
             while self.guess == "Invalid":
                 clear()
@@ -116,6 +119,9 @@ class GameAlgorithm(GameMenu):
                 return "Invalid"
 
     def assistant_algorithm(self):
+        """
+        A function that launches the main algorithm that handles the assistant
+        """
         while self.guesses_made < 6:
             # Set guess and color to invalid to run their respective loops
             self.guess, self.color = "Invalid", "Invalid"
@@ -150,6 +156,10 @@ class GameAlgorithm(GameMenu):
             exit()
 
     def compare_words(self):
+        """
+        A function that compares the user's guess and the given colors to 
+        filter the word list. 
+        """
         # Count the confirmed letters before checking matches
         required_letter_counts = Counter()
         for i in range(len(self.guess)):
