@@ -1,6 +1,17 @@
+import sys, os
 from time import sleep
 from menu import Menu
 from program_functions import clear, wrap_word_list
+
+def resource_path(relative_path):
+    """
+    Get the absolute path to wordlewords.txt
+    """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 class MasterWordList(Menu):
@@ -15,7 +26,7 @@ class MasterWordList(Menu):
     
     def import_words(self):
         # open wordlewords.txt file
-        words_file = open("wordlewords.txt", "r")
+        words_file = open(resource_path("wordlewords.txt"), "r")
         # extract all words into an array to be modified
         for word in sorted(words_file):
             self.word_list.append(word.replace("\n", ""))
