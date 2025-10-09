@@ -1,0 +1,65 @@
+name: Build and Release Cross-Platform Binaries for the Wordle Assistant
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build executable
+        run: |
+          APP_NAME="Wordle Assistant"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            pyinstaller --onefile --name "$APP_NAME" --add-data "wordlewords.txt;." wordle_assistant.py
+            mv "dist/$APP_NAME.exe" "dist/Wordle_Assistant_Windows.exe"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            pyinstaller --onefile --name "$APP_NAME" --add-data "wordlewords.txt:." wordle_assistant.py
+            mv "dist/$APP_NAME" "dist/Wordle_Assistant_macOS"
+          else
+            pyinstaller --onefile --name "$APP_NAME" --add-data "wordlewords.txt:." wordle_assistant.py
+            mv "dist/$APP_NAME" "dist/Wordle_Assistant_Linux"
+          fi
+
+        shell: bash
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: dist/
+        
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
