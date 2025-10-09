@@ -1,5 +1,8 @@
 name: Build and Release Cross-Platform Binaries for the Wordle Assistant
 
+permissions: 
+  contents: write
+
 on:
   push:
     tags:
