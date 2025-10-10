@@ -3,8 +3,6 @@ name: Build and Release Cross-Platform Binaries for the Wordle Assistant
 permissions: 
   contents: write
 
-name: Build and Release Cross-Platform Binaries for the Wordle Assistant
-
 on:
   push:
     tags:
