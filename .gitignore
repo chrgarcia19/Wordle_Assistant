@@ -3,4 +3,4 @@ venv/
 .vscode/
 build/
 dist/
-wordle-assistant.spec
+*.spec
