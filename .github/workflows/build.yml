@@ -3,59 +3,71 @@ name: Build and Release Cross-Platform Binaries for the Wordle Assistant
 permissions: 
   contents: write
 
+name: Build and Release Cross-Platform Binaries for the Wordle Assistant
+
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'  
+  workflow_dispatch: 
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - run: pip install colorama pyinstaller
-      - run: pyinstaller --onefile --name "Wordle Assistant" --console --add-data "wordlewords.txt;." wordle_assistant.py
-      - name: Upload Windows executable
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/Wordle Assistant.exe
-          asset_name: "Wordle Assistant Windows.exe"
-          asset_content_type: application/octet-stream
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            output_name: WordleAssistant.exe
+            asset_name: WordleAssistant-Windows.exe
+            separator: ";"
+          - os: macos-latest
+            output_name: WordleAssistant
+            asset_name: WordleAssistant-macOS
+            separator: ":"
+          - os: ubuntu-latest
+            output_name: WordleAssistant
+            asset_name: WordleAssistant-Linux
+            separator: ":"
 
-  build-macos:
-    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - run: pip install colorama pyinstaller
-      - run: pyinstaller --onefile --name "Wordle Assistant" --console --add-data "wordlewords.txt:." wordle_assistant.py
-      - name: Upload macOS executable
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/Wordle Assistant
-          asset_name: "Wordle Assistant macOS.app.zip"
-          asset_content_type: application/zip
-
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - run: pip install colorama pyinstaller
-      - run: pyinstaller --onefile --name "Wordle Assistant" --console --add-data "wordlewords.txt:." wordle_assistant.py
-      - name: Upload Linux executable
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/Wordle Assistant
-          asset_name: "Wordle Assistant Linux"
-          asset_content_type: application/octet-stream
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller colorama
+    
+    - name: Build executable
+      run: |
+        pyinstaller --onefile --add-data "wordlewords.txt${{ matrix.separator }}." --name WordleAssistant wordle_assistant.py
+    
+    - name: Rename output (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        mv dist/${{ matrix.output_name }} dist/${{ matrix.asset_name }}
+    
+    - name: Rename output (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        move dist\${{ matrix.output_name }} dist\${{ matrix.asset_name }}
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.asset_name }}
+        path: dist/${{ matrix.asset_name }}
+    
+    - name: Upload to Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/${{ matrix.asset_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
