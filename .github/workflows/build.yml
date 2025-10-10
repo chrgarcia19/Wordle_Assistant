@@ -23,7 +23,7 @@ jobs:
             output_name: WordleAssistant
             asset_name: WordleAssistant-macOS
             separator: ":"
-          - os: ubuntu-20.04  # Use older Ubuntu for better compatibility
+          - os: ubuntu-latest
             output_name: WordleAssistant
             asset_name: WordleAssistant-Linux.tar.gz
             separator: ":"
