@@ -6,8 +6,8 @@ permissions:
 on:
   push:
     tags:
-      - 'v*'  
-  workflow_dispatch: 
+      - 'v*'  # Triggers when you push a tag like v1.0.0
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 jobs:
   build:
@@ -23,9 +23,9 @@ jobs:
             output_name: WordleAssistant
             asset_name: WordleAssistant-macOS
             separator: ":"
-          - os: ubuntu-latest
+          - os: ubuntu-20.04  # Use older Ubuntu for better compatibility
             output_name: WordleAssistant
-            asset_name: WordleAssistant-Linux
+            asset_name: WordleAssistant-Linux.tar.gz
             separator: ":"
 
     steps:
@@ -35,7 +35,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.13'
     
     - name: Install dependencies
       run: |
@@ -46,9 +46,50 @@ jobs:
       run: |
         pyinstaller --onefile --add-data "wordlewords.txt${{ matrix.separator }}." --name WordleAssistant wordle_assistant.py
     
-    - name: Rename output (Unix)
-      if: runner.os != 'Windows'
+    - name: Package for Linux
+      if: runner.os == 'Linux'
       run: |
+        # Create package directory
+        mkdir -p wordle-assistant-linux
+        cp dist/WordleAssistant wordle-assistant-linux/
+        
+        # Create launcher script
+        cat > wordle-assistant-linux/run.sh << 'EOF'
+        #!/bin/bash
+        cd "$(dirname "$0")"
+        ./WordleAssistant
+        read -n 1 -s -r -p "Press any key to close..."
+        EOF
+        
+        chmod +x wordle-assistant-linux/run.sh
+        chmod +x wordle-assistant-linux/WordleAssistant
+        
+        # Create README
+        cat > wordle-assistant-linux/README.txt << 'EOF'
+        Wordle Assistant for Linux
+        ===========================
+        
+        To play:
+        1. Double-click "run.sh"
+           OR
+        2. Open terminal and run: ./run.sh
+        
+        If double-click doesn't work:
+        1. Right-click run.sh → Properties → Permissions
+        2. Check "Allow executing file as program"
+        3. Try again
+        
+        Enjoy!
+        EOF
+        
+        # Package it
+        tar -czf WordleAssistant-Linux.tar.gz wordle-assistant-linux/
+        mv WordleAssistant-Linux.tar.gz dist/
+    
+    - name: Rename output (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        chmod +x dist/${{ matrix.output_name }}
         mv dist/${{ matrix.output_name }} dist/${{ matrix.asset_name }}
     
     - name: Rename output (Windows)
