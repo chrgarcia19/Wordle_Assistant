@@ -1,14 +1,11 @@
 name: Build and Release Cross-Platform Binaries for the Wordle Assistant
-
 permissions: 
   contents: write
-
 on:
   push:
     tags:
       - 'v*'  # Triggers when you push a tag like v1.0.0
   workflow_dispatch:  # Allows manual trigger from GitHub UI
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -27,7 +24,6 @@ jobs:
             output_name: WordleAssistant
             asset_name: WordleAssistant-Linux.tar.gz
             separator: ":"
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -46,43 +42,136 @@ jobs:
       run: |
         pyinstaller --onefile --add-data "wordlewords.txt${{ matrix.separator }}." --name WordleAssistant wordle_assistant.py
     
-    - name: Package for Linux
+    - name: Install appimagetool (Linux only)
       if: runner.os == 'Linux'
       run: |
-        # Create package directory
-        mkdir -p wordle-assistant-linux
-        cp dist/WordleAssistant wordle-assistant-linux/
+        wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+        chmod +x appimagetool-x86_64.AppImage
+        sudo mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
+    
+    - name: Build AppImage (Linux only)
+      if: runner.os == 'Linux'
+      run: |
+        # Create AppDir structure
+        mkdir -p WordleAssistant.AppDir/usr/bin
+        cp dist/WordleAssistant WordleAssistant.AppDir/usr/bin/
+        chmod +x WordleAssistant.AppDir/usr/bin/WordleAssistant
         
-        # Create launcher script
-        cat > wordle-assistant-linux/run.sh << 'EOF'
+        # Create AppRun script
+        cat > WordleAssistant.AppDir/AppRun << 'EOF'
         #!/bin/bash
-        cd "$(dirname "$0")"
-        ./WordleAssistant
-        read -n 1 -s -r -p "Press any key to close..."
+        APPDIR="$(dirname "$(readlink -f "$0")")"
+        
+        # If running from GUI (no terminal), launch one
+        if [ ! -t 0 ]; then
+            export APPIMAGE_EXTRACT_AND_RUN=1
+            
+            for term in gnome-terminal xterm konsole xfce4-terminal mate-terminal x-terminal-emulator; do
+                if command -v "$term" >/dev/null 2>&1; then
+                    case "$term" in
+                        gnome-terminal|mate-terminal)
+                            exec "$term" -- "$0" "$@"
+                            ;;
+                        *)
+                            exec "$term" -e "$0" "$@"
+                            ;;
+                    esac
+                    exit $?
+                fi
+            done
+            exit 1
+        fi
+        
+        # We're in a terminal now, run the actual program
+        cd "$APPDIR"
+        exec "$APPDIR/usr/bin/WordleAssistant" "$@"
+        EOF
+        chmod +x WordleAssistant.AppDir/AppRun
+        
+        # Create .desktop file
+        cat > WordleAssistant.AppDir/WordleAssistant.desktop << 'EOF'
+        [Desktop Entry]
+        Name=Wordle Assistant
+        Exec=AppRun
+        Icon=wordle_assistant
+        Type=Application
+        Categories=Game;Utility;
+        Terminal=false
+        Comment=Wordle solving assistant
         EOF
         
-        chmod +x wordle-assistant-linux/run.sh
-        chmod +x wordle-assistant-linux/WordleAssistant
+        # Create a simple icon (you can replace this with your own icon file)
+        cat > WordleAssistant.AppDir/wordle_assistant.svg << 'EOF'
+        <svg width="256" height="256" xmlns="http://www.w3.org/2000/svg">
+          <rect width="256" height="256" fill="#6aaa64"/>
+          <text x="128" y="140" font-family="Arial" font-size="80" fill="white" text-anchor="middle" font-weight="bold">W</text>
+        </svg>
+        EOF
+        
+        ln -s wordle_assistant.svg WordleAssistant.AppDir/.DirIcon
+        
+        # Build AppImage
+        ARCH=x86_64 appimagetool WordleAssistant.AppDir
+        
+        # Create launcher script
+        cat > launcher.sh << 'EOF'
+        #!/bin/bash
+        # Wordle Assistant Launcher
+        SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+        APPIMAGE="$SCRIPT_DIR/WordleAssistant-x86_64.AppImage"
+        
+        # Make sure AppImage is executable
+        chmod +x "$APPIMAGE" 2>/dev/null
+        
+        # Launch in terminal
+        for term in gnome-terminal xterm konsole xfce4-terminal mate-terminal lxterminal; do
+            if command -v "$term" >/dev/null 2>&1; then
+                case "$term" in
+                    gnome-terminal|mate-terminal)
+                        exec "$term" -- "$APPIMAGE" "$@"
+                        ;;
+                    *)
+                        exec "$term" -e "$APPIMAGE" "$@"
+                        ;;
+                esac
+                exit $?
+            fi
+        done
+        
+        # Fallback
+        exec "$APPIMAGE" "$@"
+        EOF
+        chmod +x launcher.sh
         
         # Create README
-        cat > wordle-assistant-linux/README.txt << 'EOF'
+        cat > README.txt << 'EOF'
         Wordle Assistant for Linux
         ===========================
         
-        To play:
-        1. Double-click "run.sh"
-           OR
-        2. Open terminal and run: ./run.sh
+        To run:
+        1. Extract this archive
+        2. Double-click "launcher.sh" to launch
+        
+        Alternative methods:
+        - Run from terminal: ./launcher.sh
+        - Or run AppImage directly: ./WordleAssistant-x86_64.AppImage
         
         If double-click doesn't work:
-        1. Right-click run.sh → Properties → Permissions
+        1. Right-click launcher.sh → Properties → Permissions
         2. Check "Allow executing file as program"
         3. Try again
+        
+        The AppImage is self-contained and works on most Linux distributions.
         
         Enjoy!
         EOF
         
-        # Package it
+        # Package everything
+        mkdir -p wordle-assistant-linux
+        mv WordleAssistant-x86_64.AppImage wordle-assistant-linux/
+        mv launcher.sh wordle-assistant-linux/
+        mv README.txt wordle-assistant-linux/
+        
         tar -czf WordleAssistant-Linux.tar.gz wordle-assistant-linux/
         mv WordleAssistant-Linux.tar.gz dist/
     
