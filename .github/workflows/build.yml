@@ -42,9 +42,11 @@ jobs:
       run: |
         pyinstaller --onefile --add-data "wordlewords.txt${{ matrix.separator }}." --name WordleAssistant wordle_assistant.py
     
-    - name: Install appimagetool (Linux only)
+    - name: Install FUSE and appimagetool (Linux only)
       if: runner.os == 'Linux'
       run: |
+        sudo apt-get update
+        sudo apt-get install -y fuse libfuse2
         wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
         chmod +x appimagetool-x86_64.AppImage
         sudo mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
