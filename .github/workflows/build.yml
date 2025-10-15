@@ -18,19 +18,19 @@ jobs:
             separator: ";"
           - os: macos-13
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS-Intel.tar.gz
+            asset_name: WordleAssistant-macOS-Intel.zip
             separator: ":"
             arch_name: "Intel"
             folder_name: "WordleAssistant-macOS-Intel"
           - os: macos-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS.tar.gz
+            asset_name: WordleAssistant-macOS.zip
             separator: ":"
             arch_name: "Apple Silicon"
             folder_name: "WordleAssistant-macOS"
           - os: ubuntu-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-Linux.tar.gz
+            asset_name: WordleAssistant-Linux.zip
             separator: ":"
             folder_name: "WordleAssistant-Linux"
     steps:
@@ -101,7 +101,7 @@ jobs:
         EOF
         
         # Package it
-        tar -czf ${{ matrix.asset_name }} ${{ matrix.folder_name }}/
+        zip -r ${{ matrix.asset_name }} ${{ matrix.folder_name }}/
         mv ${{ matrix.asset_name }} dist/
     
     - name: Install FUSE and appimagetool (Linux only)
@@ -236,8 +236,8 @@ jobs:
         mv launcher.sh ${{ matrix.folder_name }}/
         mv README.txt ${{ matrix.folder_name }}/
         
-        tar -czf WordleAssistant-Linux.tar.gz ${{ matrix.folder_name }}/
-        mv WordleAssistant-Linux.tar.gz dist/
+        zip -r WordleAssistant-Linux.zip ${{ matrix.folder_name }}/
+        mv WordleAssistant-Linux.zip dist/
     
     - name: Rename output (Windows)
       if: runner.os == 'Windows'
