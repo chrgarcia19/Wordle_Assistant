@@ -45,8 +45,8 @@ jobs:
           pyinstaller --onefile --console --name WordleAssistant --add-data "wordlewords.txt${{ matrix.separator }}." wordle_assistant.py
 
       - name: Make Linux binary executable
-          if: matrix.os == 'ubuntu-latest'
-          run: chmod +x release/WordleAssistant-linux
+        if: matrix.os == 'ubuntu-latest'
+        run: chmod +x release/WordleAssistant-linux
 
       # Move the build output to a standard folder with a clear name
       - name: Rename executable
