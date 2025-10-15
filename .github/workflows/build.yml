@@ -13,15 +13,12 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            extension: ""
             output_name: WordleAssistant-linux
             separator: ":"
           - os: windows-latest
-            extension: ".exe"
             output_name: WordleAssistant-windows
             separator: ";"
           - os: macos-latest
-            extension: ""
             output_name: WordleAssistant-macos
             separator: ":"
     
@@ -44,16 +41,19 @@ jobs:
         run: |
           pyinstaller --onefile --console --name WordleAssistant --add-data "wordlewords.txt${{ matrix.separator }}." wordle_assistant.py
 
-      - name: Make Linux binary executable
-        if: matrix.os == 'ubuntu-latest'
-        run: chmod +x release/WordleAssistant-linux
-
-      # Move the build output to a standard folder with a clear name
-      - name: Rename executable
+      # Move and rename binaries, make Linux executable
+      - name: Prepare binary for artifact
         shell: bash
         run: |
           mkdir -p release
-          mv dist/WordleAssistant${{ matrix.extension }} release/${{ matrix.output_name }}${{ matrix.extension }}
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            mv dist/WordleAssistant release/WordleAssistant-linux.run
+            chmod +x release/WordleAssistant-linux.run
+          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv dist/WordleAssistant.exe release/WordleAssistant-windows.exe
+          else
+            mv dist/WordleAssistant release/WordleAssistant-macos
+          fi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
