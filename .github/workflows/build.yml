@@ -42,9 +42,7 @@ jobs:
       # Build the one-file executable and include the word list file
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --console --name WordleAssistant \
-            --add-data "wordlewords.txt${{ matrix.separator }}." \
-            wordle_assistant.py
+          pyinstaller --onefile --console --name WordleAssistant --add-data "wordlewords.txt${{ matrix.separator }}." wordle_assistant.py
 
       # Move the build output to a standard folder with a clear name
       - name: Rename executable
