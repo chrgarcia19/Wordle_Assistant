@@ -16,10 +16,18 @@ jobs:
             output_name: WordleAssistant.exe
             asset_name: WordleAssistant-Windows.exe
             separator: ";"
+          - os: macos-13
+            output_name: WordleAssistant
+            asset_name: WordleAssistant-macOS-Intel.tar.gz
+            separator: ":"
+            arch_name: "Intel"
+            folder_name: "WordleAssistant-macOS-Intel"
           - os: macos-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS
+            asset_name: WordleAssistant-macOS-AppleSilicon.tar.gz
             separator: ":"
+            arch_name: "Apple Silicon"
+            folder_name: "WordleAssistant-macOS"
           - os: ubuntu-latest
             output_name: WordleAssistant
             asset_name: WordleAssistant-Linux.tar.gz
@@ -41,6 +49,59 @@ jobs:
     - name: Build executable
       run: |
         pyinstaller --onefile --add-data "wordlewords.txt${{ matrix.separator }}." --name WordleAssistant wordle_assistant.py
+    
+    - name: Package for macOS
+      if: runner.os == 'macOS'
+      run: |
+        chmod +x dist/WordleAssistant
+        
+        # Create package directory
+        mkdir -p ${{ matrix.folder_name }}
+        cp dist/WordleAssistant ${{ matrix.folder_name }}/
+        
+        # Create launcher script
+        cat > ${{ matrix.folder_name }}/launcher.sh << 'EOF'
+        #!/bin/bash
+        cd "$(dirname "$0")"
+        
+        # Check if Terminal is already running this script
+        if [ -t 0 ]; then
+            ./WordleAssistant
+            echo ""
+            read -n 1 -s -r -p "Press any key to close..."
+        else
+            # Launch in Terminal
+            osascript -e 'tell application "Terminal" to do script "cd \"'"$(pwd)"'\" && ./launcher.sh"'
+        fi
+        EOF
+        chmod +x ${{ matrix.folder_name }}/launcher.sh
+        
+        # Create README
+        cat > ${{ matrix.folder_name }}/README.txt << 'EOF'
+        Wordle Assistant for macOS (${{ matrix.arch_name }})
+        ===========================
+        
+        To run:
+        1. Extract this archive
+        2. Double-click "launcher.sh"
+        
+        Alternative:
+        - Open Terminal and run: ./launcher.sh
+        
+        Note: This version is built for ${{ matrix.arch_name }} Macs.
+        - Intel Macs: Download WordleAssistant-macOS-Intel.tar.gz
+        - Apple Silicon (M1/M2/M3): Download WordleAssistant-macOS-AppleSilicon.tar.gz
+        
+        If you get a security warning:
+        1. Right-click launcher.sh → Open
+        2. Click "Open" in the dialog
+        
+        Enjoy!
+        EOF
+        
+        # Package it
+        tar -czf ${{ matrix.asset_name }} ${{ matrix.folder_name }}/
+        mv ${{ matrix.asset_name }} dist/
     
     - name: Install FUSE and appimagetool (Linux only)
       if: runner.os == 'Linux'
@@ -176,12 +237,6 @@ jobs:
         
         tar -czf WordleAssistant-Linux.tar.gz wordle-assistant-linux/
         mv WordleAssistant-Linux.tar.gz dist/
-    
-    - name: Rename output (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        chmod +x dist/${{ matrix.output_name }}
-        mv dist/${{ matrix.output_name }} dist/${{ matrix.asset_name }}
     
     - name: Rename output (Windows)
       if: runner.os == 'Windows'
