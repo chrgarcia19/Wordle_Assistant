@@ -24,7 +24,7 @@ jobs:
             folder_name: "WordleAssistant-macOS-Intel"
           - os: macos-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS-AppleSilicon.tar.gz
+            asset_name: WordleAssistant-macOS.tar.gz
             separator: ":"
             arch_name: "Apple Silicon"
             folder_name: "WordleAssistant-macOS"
@@ -32,6 +32,7 @@ jobs:
             output_name: WordleAssistant
             asset_name: WordleAssistant-Linux.tar.gz
             separator: ":"
+            folder_name: "WordleAssistant-Linux"
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -230,12 +231,12 @@ jobs:
         EOF
         
         # Package everything
-        mkdir -p wordle-assistant-linux
-        mv WordleAssistant-x86_64.AppImage wordle-assistant-linux/
-        mv launcher.sh wordle-assistant-linux/
-        mv README.txt wordle-assistant-linux/
+        mkdir -p ${{ matrix.folder_name }}
+        mv WordleAssistant-x86_64.AppImage ${{ matrix.folder_name }}/
+        mv launcher.sh ${{ matrix.folder_name }}/
+        mv README.txt ${{ matrix.folder_name }}/
         
-        tar -czf WordleAssistant-Linux.tar.gz wordle-assistant-linux/
+        tar -czf WordleAssistant-Linux.tar.gz ${{ matrix.folder_name }}/
         mv WordleAssistant-Linux.tar.gz dist/
     
     - name: Rename output (Windows)
