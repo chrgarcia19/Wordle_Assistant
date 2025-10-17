@@ -18,13 +18,13 @@ jobs:
             separator: ";"
           - os: macos-13
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS-Intel.zip
+            asset_name: WordleAssistant-macOS-Intel.tar.gz
             separator: ":"
             arch_name: "Intel"
             folder_name: "WordleAssistant-macOS-Intel"
           - os: macos-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS.zip
+            asset_name: WordleAssistant-macOS.tar.gz
             separator: ":"
             arch_name: "Apple Silicon"
             folder_name: "WordleAssistant-macOS"
@@ -114,8 +114,8 @@ jobs:
         - Run: ./WordleAssistant
         
         Note: This version is built for ${{ matrix.arch_name }} Macs.
-        - Intel Macs: Download WordleAssistant-macOS-Intel.zip
-        - Apple Silicon (M1/M2/M3/M4): Download WordleAssistant-macOS.zip
+        - Intel Macs: Download WordleAssistant-macOS-Intel.tar.gz
+        - Apple Silicon (M1/M2/M3/M4): Download WordleAssistant-macOS.tar.gz
         
         If you get a security warning:
         1. Right-click "Wordle Assistant.app" → Open
@@ -127,8 +127,8 @@ jobs:
         # Move app bundle and README into folder
         mv "Wordle Assistant.app" ${{ matrix.folder_name }}/
         
-        # Package it
-        zip -r ${{ matrix.asset_name }} ${{ matrix.folder_name }}/
+        # Package it with tar to preserve permissions
+        tar -czf ${{ matrix.asset_name }} ${{ matrix.folder_name }}/
         mv ${{ matrix.asset_name }} dist/
     
     - name: Install FUSE and appimagetool (Linux only)
