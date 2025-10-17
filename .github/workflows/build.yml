@@ -30,9 +30,8 @@ jobs:
             folder_name: "WordleAssistant-macOS"
           - os: ubuntu-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-Linux.zip
+            asset_name: WordleAssistant-x86_64.AppImage
             separator: ":"
-            folder_name: "WordleAssistant-Linux"
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -47,9 +46,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller colorama
     
-    - name: Build executable
+    - name: Build executable (Windows/macOS)
+      if: runner.os != 'Linux'
       run: |
         pyinstaller --onefile --add-data "wordlewords.txt${{ matrix.separator }}." --name WordleAssistant wordle_assistant.py
+    
+    - name: Build executable (Linux - onedir for AppImage)
+      if: runner.os == 'Linux'
+      run: |
+        pyinstaller --onedir --clean --add-data "wordlewords.txt${{ matrix.separator }}." --name WordleAssistant wordle_assistant.py
     
     - name: Package for macOS
       if: runner.os == 'macOS'
@@ -140,37 +145,55 @@ jobs:
       run: |
         # Create AppDir structure
         mkdir -p WordleAssistant.AppDir/usr/bin
-        cp dist/WordleAssistant WordleAssistant.AppDir/usr/bin/
-        chmod +x WordleAssistant.AppDir/usr/bin/WordleAssistant
+        cp -r dist/WordleAssistant WordleAssistant.AppDir/usr/bin/
+        chmod +x WordleAssistant.AppDir/usr/bin/WordleAssistant/WordleAssistant
         
-        # Create AppRun script
+        # Create AppRun script with working copy-to-tmp approach
         cat > WordleAssistant.AppDir/AppRun << 'EOF'
         #!/bin/bash
-        APPDIR="$(dirname "$(readlink -f "$0")")"
+        HERE="$(dirname "$(readlink -f "$0")")"
         
-        # If running from GUI (no terminal), launch one
-        if [ ! -t 0 ]; then
-            export APPIMAGE_EXTRACT_AND_RUN=1
-            
-            for term in gnome-terminal xterm konsole xfce4-terminal mate-terminal x-terminal-emulator; do
-                if command -v "$term" >/dev/null 2>&1; then
-                    case "$term" in
-                        gnome-terminal|mate-terminal)
-                            exec "$term" -- "$0" "$@"
-                            ;;
-                        *)
-                            exec "$term" -e "$0" "$@"
-                            ;;
-                    esac
-                    exit $?
-                fi
-            done
-            exit 1
+        # Create a temp directory and copy the entire PyInstaller bundle there
+        RUNTIME_DIR="/tmp/wordle_assistant_runtime_$"
+        mkdir -p "$RUNTIME_DIR"
+        
+        # Copy the entire PyInstaller directory to temp
+        cp -r "$HERE/usr/bin/WordleAssistant" "$RUNTIME_DIR/"
+        
+        # The executable in temp
+        APP_BIN="$RUNTIME_DIR/WordleAssistant/WordleAssistant"
+        
+        # Make it executable
+        chmod +x "$APP_BIN"
+        
+        # Clean up on exit
+        trap "rm -rf $RUNTIME_DIR" EXIT
+        
+        # If running in a terminal already, just execute directly
+        if [ -t 0 ]; then
+            exec "$APP_BIN" "$@"
         fi
         
-        # We're in a terminal now, run the actual program
-        cd "$APPDIR"
-        exec "$APPDIR/usr/bin/WordleAssistant" "$@"
+        # Otherwise, find and launch a terminal emulator
+        for term in gnome-terminal konsole xfce4-terminal mate-terminal lxterminal xterm; do
+            if command -v "$term" >/dev/null 2>&1; then
+                case "$term" in
+                    gnome-terminal)
+                        exec "$term" -- bash -c "'$APP_BIN' '$@'; echo ''; echo 'Press Enter to close...'; read; rm -rf '$RUNTIME_DIR'"
+                        ;;
+                    konsole)
+                        exec "$term" --hold -e bash -c "'$APP_BIN' '$@'; rm -rf '$RUNTIME_DIR'"
+                        ;;
+                    *)
+                        exec "$term" -e bash -c "'$APP_BIN' '$@'; echo ''; echo 'Press Enter to close...'; read; rm -rf '$RUNTIME_DIR'"
+                        ;;
+                esac
+            fi
+        done
+        
+        echo "ERROR: No terminal emulator found" >&2
+        rm -rf "$RUNTIME_DIR"
+        exit 1
         EOF
         chmod +x WordleAssistant.AppDir/AppRun
         
@@ -182,11 +205,11 @@ jobs:
         Icon=wordle_assistant
         Type=Application
         Categories=Game;Utility;
-        Terminal=false
+        Terminal=true
         Comment=Wordle solving assistant
         EOF
         
-        # Create a simple icon (you can replace this with your own icon file)
+        # Create a simple icon
         cat > WordleAssistant.AppDir/wordle_assistant.svg << 'EOF'
         <svg width="256" height="256" xmlns="http://www.w3.org/2000/svg">
           <rect width="256" height="256" fill="#6aaa64"/>
@@ -199,67 +222,8 @@ jobs:
         # Build AppImage
         ARCH=x86_64 appimagetool WordleAssistant.AppDir WordleAssistant-x86_64.AppImage
         
-        # Create launcher script
-        cat > launcher.sh << 'EOF'
-        #!/bin/bash
-        # Wordle Assistant Launcher
-        SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-        APPIMAGE="$SCRIPT_DIR/WordleAssistant-x86_64.AppImage"
-        
-        # Make sure AppImage is executable
-        chmod +x "$APPIMAGE" 2>/dev/null
-        
-        # Launch in terminal
-        for term in gnome-terminal xterm konsole xfce4-terminal mate-terminal lxterminal; do
-            if command -v "$term" >/dev/null 2>&1; then
-                case "$term" in
-                    gnome-terminal|mate-terminal)
-                        exec "$term" -- "$APPIMAGE" "$@"
-                        ;;
-                    *)
-                        exec "$term" -e "$APPIMAGE" "$@"
-                        ;;
-                esac
-                exit $?
-            fi
-        done
-        
-        # Fallback
-        exec "$APPIMAGE" "$@"
-        EOF
-        chmod +x launcher.sh
-        
-        # Create README
-        cat > README.txt << 'EOF'
-        Wordle Assistant for Linux
-        ===========================
-        
-        To run:
-        1. Extract this archive
-        2. Double-click "launcher.sh" to launch
-        
-        Alternative methods:
-        - Run from terminal: ./launcher.sh
-        - Or run AppImage directly: ./WordleAssistant-x86_64.AppImage
-        
-        If double-click doesn't work:
-        1. Right-click launcher.sh → Properties → Permissions
-        2. Check "Allow executing file as program"
-        3. Try again
-        
-        The AppImage is self-contained and works on most Linux distributions.
-        
-        Enjoy!
-        EOF
-        
-        # Package everything
-        mkdir -p ${{ matrix.folder_name }}
-        mv WordleAssistant-x86_64.AppImage ${{ matrix.folder_name }}/
-        mv launcher.sh ${{ matrix.folder_name }}/
-        mv README.txt ${{ matrix.folder_name }}/
-        
-        zip -r WordleAssistant-Linux.zip ${{ matrix.folder_name }}/
-        mv WordleAssistant-Linux.zip dist/
+        # Move to dist for artifact upload
+        mv WordleAssistant-x86_64.AppImage dist/${{ matrix.asset_name }}
     
     - name: Rename output (Windows)
       if: runner.os == 'Windows'
