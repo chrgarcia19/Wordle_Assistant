@@ -30,7 +30,7 @@ jobs:
             folder_name: "WordleAssistant-macOS"
           - os: ubuntu-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-x86_64.AppImage
+            asset_name: WordleAssistant-Linux.AppImage
             separator: ":"
     steps:
     - name: Checkout code
@@ -220,10 +220,10 @@ jobs:
         ln -s wordle_assistant.svg WordleAssistant.AppDir/.DirIcon
         
         # Build AppImage
-        ARCH=x86_64 appimagetool WordleAssistant.AppDir WordleAssistant-x86_64.AppImage
+        ARCH=x86_64 appimagetool WordleAssistant.AppDir WordleAssistant-Linux.AppImage
         
         # Move to dist for artifact upload
-        mv WordleAssistant-x86_64.AppImage dist/${{ matrix.asset_name }}
+        mv WordleAssistant-Linux.AppImage dist/${{ matrix.asset_name }}
     
     - name: Rename output (Windows)
       if: runner.os == 'Windows'
