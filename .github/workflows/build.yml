@@ -18,13 +18,13 @@ jobs:
             separator: ";"
           - os: macos-13
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS-Intel.tar.gz
+            asset_name: WordleAssistant-macOS-Intel.dmg
             separator: ":"
             arch_name: "Intel"
             folder_name: "WordleAssistant-macOS-Intel"
           - os: macos-latest
             output_name: WordleAssistant
-            asset_name: WordleAssistant-macOS.tar.gz
+            asset_name: WordleAssistant-macOS.dmg
             separator: ":"
             arch_name: "Apple Silicon"
             folder_name: "WordleAssistant-macOS"
@@ -72,7 +72,7 @@ jobs:
         cat > "Wordle Assistant.app/Contents/MacOS/launcher" << 'EOF'
         #!/bin/bash
         DIR="$(cd "$(dirname "$0")" && pwd)"
-        osascript -e 'tell application "Terminal" to do script "cd \"'"$DIR"'\" && ./WordleAssistant; echo \"\"; read -n 1 -s -r -p \"Press any key to close...\""'
+        osascript -e "tell application \"Terminal\" to do script \"cd '$DIR' && ./WordleAssistant; echo ''; read -n 1 -s -r -p 'Press any key to close...'\""
         EOF
         chmod +x "Wordle Assistant.app/Contents/MacOS/launcher"
         
@@ -98,38 +98,23 @@ jobs:
         </plist>
         EOF
         
-        # Create README
-        mkdir -p ${{ matrix.folder_name }}
-        cat > ${{ matrix.folder_name }}/README.txt << 'EOF'
-        Wordle Assistant for macOS (${{ matrix.arch_name }})
-        ===========================
+        # Install create-dmg
+        brew install create-dmg
         
-        To run:
-        1. Extract this archive
-        2. Double-click "Wordle Assistant.app"
+        # Create DMG with the app bundle
+        create-dmg \
+          --volname "Wordle Assistant" \
+          --window-pos 200 120 \
+          --window-size 600 400 \
+          --icon-size 100 \
+          --icon "Wordle Assistant.app" 175 120 \
+          --hide-extension "Wordle Assistant.app" \
+          --app-drop-link 425 120 \
+          "${{ matrix.asset_name }}" \
+          "Wordle Assistant.app"
         
-        Alternative (from Terminal):
-        - Right-click "Wordle Assistant.app" → Show Package Contents
-        - Navigate to Contents/MacOS/
-        - Run: ./WordleAssistant
-        
-        Note: This version is built for ${{ matrix.arch_name }} Macs.
-        - Intel Macs: Download WordleAssistant-macOS-Intel.tar.gz
-        - Apple Silicon (M1/M2/M3/M4): Download WordleAssistant-macOS.tar.gz
-        
-        If you get a security warning:
-        1. Right-click "Wordle Assistant.app" → Open
-        2. Click "Open" in the dialog
-        
-        Enjoy!
-        EOF
-        
-        # Move app bundle and README into folder
-        mv "Wordle Assistant.app" ${{ matrix.folder_name }}/
-        
-        # Package it with tar to preserve permissions
-        tar -czf ${{ matrix.asset_name }} ${{ matrix.folder_name }}/
-        mv ${{ matrix.asset_name }} dist/
+        # Move DMG to dist for artifact upload
+        mv "${{ matrix.asset_name }}" dist/
     
     - name: Install FUSE and appimagetool (Linux only)
       if: runner.os == 'Linux'
@@ -154,7 +139,7 @@ jobs:
         HERE="$(dirname "$(readlink -f "$0")")"
         
         # Create a temp directory and copy the entire PyInstaller bundle there
-        RUNTIME_DIR="/tmp/wordle_assistant_runtime_$"
+        RUNTIME_DIR="/tmp/wordle_assistant_runtime_$$"
         mkdir -p "$RUNTIME_DIR"
         
         # Copy the entire PyInstaller directory to temp
