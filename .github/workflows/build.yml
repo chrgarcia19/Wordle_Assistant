@@ -16,22 +16,28 @@ jobs:
             output_name: WordleAssistant.exe
             asset_name: WordleAssistant-Windows.exe
             separator: ";"
+            folder_name: WordleAssistant-Windows
+            readme_type: windows
           - os: macos-13
             output_name: WordleAssistant
             asset_name: WordleAssistant-macOS-Intel.dmg
             separator: ":"
             arch_name: "Intel"
-            folder_name: "WordleAssistant-macOS-Intel"
+            folder_name: WordleAssistant-macOS-Intel
+            readme_type: macos
           - os: macos-latest
             output_name: WordleAssistant
             asset_name: WordleAssistant-macOS.dmg
             separator: ":"
             arch_name: "Apple Silicon"
-            folder_name: "WordleAssistant-macOS"
+            folder_name: WordleAssistant-macOS
+            readme_type: macos
           - os: ubuntu-latest
             output_name: WordleAssistant
             asset_name: WordleAssistant-Linux.AppImage
             separator: ":"
+            folder_name: WordleAssistant-Linux
+            readme_type: linux
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -45,6 +51,75 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller colorama
+    
+    - name: Create README (Windows)
+      if: matrix.readme_type == 'windows'
+      run: |
+        echo "----- Wordle Assistant V1.0 (Windows) -----" > readme.txt
+        echo "Thank you for downloading the Wordle" >> readme.txt
+        echo "Assistant on Windows. I hope you enjoy this" >> readme.txt
+        echo "bare bones tool for your daily Wordle." >> readme.txt
+        echo "---------------- How to Run ---------------" >> readme.txt
+        echo "1) Go to the .exe file and click on it to" >> readme.txt
+        echo "use the Wordle Assistant. No other" >> readme.txt
+        echo "instructions are really needed." >> readme.txt
+    
+    - name: Create README (Linux)
+      if: matrix.readme_type == 'linux'
+      run: |
+        cat > readme.txt << 'EOF'
+        ----- Wordle Assistant V1.0 (Linux) -----
+        Thank you for downloading the Wordle
+        Assistant on Linux. I hope you enjoy this
+        bare bones tool for your daily Wordle. 
+        Before you play, please follow the
+        instructions for a smooth experience.
+        -------------- How to Run ---------------
+        1) Make sure the latest FUSE (Filesystem
+        in Userspace) package is installed on
+        your device. 
+        2) [Optional] Some Linux distributions
+        run the AppImage easier using the 
+        AppImageLauncher. If this is the case for
+        your distrobution, please download the
+        AppImageLauncher package.
+        3) Run the AppImage on your device. This
+        can be run from the command line or by
+        clicking on the icon in your file manager
+        or desktop. [NOTE] You may need to right
+        click on the icon to open it without any
+        hassles.
+        EOF
+    
+    - name: Create README (macOS)
+      if: matrix.readme_type == 'macos'
+      run: |
+        cat > readme.txt << 'EOF'
+        ----- Wordle Assistant V1.0 (macOS) -----
+        Thank you for downloading the Wordle
+        Assistant on macOS. I hope you enjoy this
+        bare bones tool for your daily Wordle. 
+        Before you play, please follow the
+        instructions for a smooth experience.
+        -------------- How to Run ---------------
+        1) Before you do anything, make sure you
+        have downloaded the proper Wordle
+        Assistant for your macOS device. If your
+        Mac has an Intel processor, please
+        download the version labelled 
+        "macOS-Intel". If you have an M1 or newer
+        CPU, download the version just labelled 
+        "macOS".
+        [NOTE] You may need to go to Settings ->
+        Privacy to allow the .dmg to be mounted
+        and the .app to run properly.
+        2) Double click on the .dmg file to mount
+        it to your device.
+        3) Drag the .app folder to your desired
+        location on your device. 
+        4) Double click on the .app to run the 
+        Wordle Assistant.
+        EOF
     
     - name: Build executable (Windows/macOS)
       if: runner.os != 'Linux'
@@ -101,12 +176,15 @@ jobs:
         # Create a temporary directory for DMG contents
         mkdir -p dmg_contents
         cp -R "Wordle Assistant.app" dmg_contents/
+        cp readme.txt dmg_contents/
         
         # Create DMG using hdiutil directly (more reliable in CI)
         hdiutil create -volname "Wordle Assistant" -srcfolder dmg_contents -ov -format UDZO "${{ matrix.asset_name }}"
         
-        # Move DMG to dist for artifact upload
-        mv "${{ matrix.asset_name }}" dist/
+        # Create final folder with DMG and readme
+        mkdir -p "${{ matrix.folder_name }}"
+        mv "${{ matrix.asset_name }}" "${{ matrix.folder_name }}/"
+        cp readme.txt "${{ matrix.folder_name }}/"
     
     - name: Install FUSE and appimagetool (Linux only)
       if: runner.os == 'Linux'
@@ -199,24 +277,28 @@ jobs:
         # Build AppImage
         ARCH=x86_64 appimagetool WordleAssistant.AppDir WordleAssistant-Linux.AppImage
         
-        # Move to dist for artifact upload
-        mv WordleAssistant-Linux.AppImage dist/${{ matrix.asset_name }}
+        # Create final folder with AppImage and readme
+        mkdir -p "${{ matrix.folder_name }}"
+        mv WordleAssistant-Linux.AppImage "${{ matrix.folder_name }}/${{ matrix.asset_name }}"
+        cp readme.txt "${{ matrix.folder_name }}/"
     
-    - name: Rename output (Windows)
+    - name: Package for Windows
       if: runner.os == 'Windows'
       run: |
-        move dist\${{ matrix.output_name }} dist\${{ matrix.asset_name }}
+        mkdir "${{ matrix.folder_name }}"
+        move "dist\${{ matrix.output_name }}" "${{ matrix.folder_name }}\${{ matrix.asset_name }}"
+        copy readme.txt "${{ matrix.folder_name }}\"
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.asset_name }}
-        path: dist/${{ matrix.asset_name }}
+        name: ${{ matrix.folder_name }}
+        path: ${{ matrix.folder_name }}/
     
     - name: Upload to Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/${{ matrix.asset_name }}
+        files: ${{ matrix.folder_name }}/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
