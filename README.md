@@ -11,7 +11,10 @@ Some special thanks must be given for this project coming together as seamlessly
 
 ### Tools and Technologies Used
 - Python 3
+- Colorama (Python library)
 - Git/GitHub
 
 ### To Download and Use
-
+1) Go to the release of the Wordle Assistant [https://github.com/chrgarcia19/Wordle_Assistant/releases/tag/V1.0]
+2) Download the proper package based on your operating system.
+3) To run the Wordle Assistant on your device, read the corresponding readme.txt file once you unzip your download.
